@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { Renderer } from '@yuanzhibang/renderer';
 import { HttpClientService, ServerApiStatusCode } from './service/http-client.service';
 declare const yzb: any;
 
 interface OAppConfig {
   appId: string;   // 当前 app_id 为猿之棒开放平台所添加应用对应生成的appid值
   getJsTicketUrl: string;
-  jsArray: Array<string>;
+  jsApiList: Array<string>;
 }
 
 @Component({
@@ -16,7 +17,7 @@ interface OAppConfig {
 export class AppComponent {
   appConfig: OAppConfig = {
     appId: '101192',
-    jsArray: [
+    jsApiList: [
       'core.requestAuthCode',
       'core.requestAccess'
     ],
@@ -26,25 +27,39 @@ export class AppComponent {
   constructor(private httpClient: HttpClientService) {
   }
 
-  getAccessCode() {
+  clickGetAuthCode() {
     if (yzb.helper.isRunInClientDesktop()) {
       // 获取 access code
       this.content = '正在获取中...';
-      this.getAuthCode().then((code) => {
+      // !使用@yuanzhibang/renderer实现
+      this.getAuthCodeWithYzbRenderer().then((codeInfo: any) => {
         // 获取 code 成功
-        this.content = code;
+        this.content = codeInfo.code;
       }).catch(error => {
-        this.content = '获取 access code 失败';
+        this.content = '获取 auth code 失败';
       });
+      // !自己实现逻辑
+      // this.getAuthCode().then((code) => {
+      //   // 获取 code 成功
+      //   this.content = code;
+      // }).catch(error => {
+      //   this.content = '获取 access code 失败';
+      // });
     } else {
       alert('请在猿之棒应用内调试！');
     }
   }
 
+  // !使用辅助库实现,@yuanzhibang/renderer
+  async getAuthCodeWithYzbRenderer() {
+    return Renderer.getAuthCode(this.appConfig.appId, this.appConfig.jsApiList, this.getJsTicketInfo() as any);
+  }
+
+  // !自己实现全部过程
   getAuthCode() {
     return new Promise((resolve, reject) => {
       this.getJsTicketInfo().then((result: object | any) => {
-        result['js_api_list'] = this.appConfig.jsArray;
+        result['js_api_list'] = this.appConfig.jsApiList;
         result['is_spa'] = true;  // 是否为单页应用
         // 进行config配置
         this.config(result).then(() => {
