@@ -15,14 +15,13 @@ interface OAppConfig {
 })
 export class AppComponent {
   appConfig: OAppConfig = {
-    appId: '101169',
+    appId: '101192',
     jsArray: [
       'core.requestAuthCode',
-      'core.requestAccess',
-      'network.request'
+      'core.requestAccess'
     ],
-    getJsTicketUrl: 'https://yzb-code-storage-api-app.david-health.cn/Api/getJsApiCheckInfo',
-  }
+    getJsTicketUrl: 'https://demo-api-app.yuanzhibang.com/Api/getJsApiCheckInfo',
+  };
   content: any;
   constructor(private httpClient: HttpClientService) {
   }
@@ -41,7 +40,7 @@ export class AppComponent {
       alert('请在猿之棒应用内调试！');
     }
   }
-  
+
   getAuthCode() {
     return new Promise((resolve, reject) => {
       this.getJsTicketInfo().then((result: object | any) => {
@@ -62,7 +61,7 @@ export class AppComponent {
       }).catch((error) => {
         reject(error);
       });
-    })
+    });
   }
 
   // 获取数据js签名信息
